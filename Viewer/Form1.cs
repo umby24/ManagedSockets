@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Sockets;
 using Sockets.EventArgs;
+using System.Net;
+using System.Net.Sockets;
 
 namespace Viewer {
     public partial class Form1 : Form {
@@ -36,6 +38,14 @@ namespace Viewer {
                 Buffer.BlockCopy(args.Data, 0, tempBuff, _receiveBuffer.Length, args.Data.Length);
                 _receiveBuffer = tempBuff;
             }
+            //string asAscii = Encoding.ASCII.GetString(args.Data);
+            //WriteToBox("Got Data: " + asAscii.Replace("\r\n", ""));
+
+            //if (asAscii.Contains("451")) {
+            //    _mySock.Send(Encoding.ASCII.GetBytes("NICK u24something\r\n"));
+            //    _mySock.Send(Encoding.ASCII.GetBytes("USER u24something u24something bla :u24something\r\n"));
+            //    _mySock.Send(Encoding.ASCII.GetBytes("MODE u24something +B-x\r\n"));
+            //}
         }
 
         private void ParseLoop() {
@@ -55,15 +65,14 @@ namespace Viewer {
                         continue;
                     }
 
-                    outputs = asAscii.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries).ToList();
+                    outputs = asAscii.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
                     if (!asAscii.EndsWith("\r\n")) {
                         // -- Last message was incomplete
                         _receiveBuffer = Encoding.ASCII.GetBytes(outputs[outputs.Count - 1]);
-                            // -- Place what was there back onto the stack..
+                        // -- Place what was there back onto the stack..
                         outputs.RemoveAt(outputs.Count - 1);
-                    }
-                    else {
+                    } else {
                         _receiveBuffer = new byte[0];
                     }
                 } // -- We're done handling all this data. we can let the socket use it again :)
@@ -114,6 +123,35 @@ namespace Viewer {
 
         private void button2_Click(object sender, EventArgs e) {
             _mySock?.Disconnect("Ending connection");
+        }
+
+        private TcpListener _listener;
+        private List<ClientSocket> _sockets = new List<ClientSocket>();
+
+        private void button3_Click(object sender, EventArgs e) {
+            _listener = new TcpListener(IPAddress.Any, 25565);
+            _listener.Start();
+            AcceptFunction();
+            WriteToBox("Listening");
+        }
+
+        private void AcceptFunction() {
+            _listener.BeginAcceptTcpClient(AcceptCallback, null);
+        }
+
+        private void AcceptCallback(IAsyncResult ar) {
+            var client = _listener.EndAcceptTcpClient(ar);
+            var newSocket = new ClientSocket();
+            newSocket.Disconnected += NewSocket_Disconnected;
+            newSocket.Accept(client);
+
+            WriteToBox("Accepted Client!!!");
+            AcceptFunction();
+        }
+
+        private void NewSocket_Disconnected(SocketDisconnectedArgs args) {
+            WriteToBox("Client Disconnected!!!");
+            _sockets.Remove(args.BaseSocket);
         }
     }
 }

@@ -15,7 +15,7 @@ Looking at the super old Winsock Orcas project (and a c# ported version of it), 
 
 So here you have it, Managed Sockets.
 
-Due to my usages only being TCP at the moment, that is all this supports. If I need it in the future 
+Due to my usages only being TCP at the moment, that is all this supports. If I need it in the future then I may add it then.
 
 # Usage
 ## Server

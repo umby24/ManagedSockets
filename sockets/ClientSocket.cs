@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
@@ -31,7 +32,7 @@ namespace Sockets {
         private byte[] _readBuffer = new byte[ReadSize]; // -- Small buffer that async reads will place data into
         private bool _closing, _sending; // -- Internal state flags
 
-        private ConcurrentQueue<byte[]> _receiveBuffer; 
+        //private ConcurrentQueue<byte[]> _receiveBuffer;
         private ConcurrentQueue<byte[]> _sendBuffer;
 
         #region Constructors
@@ -65,7 +66,6 @@ namespace Sockets {
             Endpoint = new IPEndPoint(address, port);
             _baseSocket = new TcpClient();
             _sendBuffer = new ConcurrentQueue<byte[]>();
-            _receiveBuffer = new ConcurrentQueue<byte[]>();
         }
 
         /// <summary>
@@ -85,7 +85,6 @@ namespace Sockets {
             Endpoint = new IPEndPoint(address, port);
             _baseSocket = new TcpClient();
             _sendBuffer = new ConcurrentQueue<byte[]>();
-            _receiveBuffer = new ConcurrentQueue<byte[]>();
         }
 
         /// <summary>
@@ -100,7 +99,6 @@ namespace Sockets {
             Endpoint = endpoint;
             _baseSocket = new TcpClient();
             _sendBuffer = new ConcurrentQueue<byte[]>();
-            _receiveBuffer = new ConcurrentQueue<byte[]>();
         }
 
         /// <summary>
@@ -117,13 +115,11 @@ namespace Sockets {
             Endpoint = new IPEndPoint(((IPEndPoint)client.Client.RemoteEndPoint).Address, ((IPEndPoint)client.Client.LocalEndPoint).Port);
             IsConnected = true;
             _sendBuffer = new ConcurrentQueue<byte[]>();
-            _receiveBuffer = new ConcurrentQueue<byte[]>();
             _baseStream.BeginRead(_readBuffer, 0, ReadSize, ReadComplete, null); // -- Begin reading data
         }
 
         public ClientSocket() {
             _sendBuffer = new ConcurrentQueue<byte[]>();
-            _receiveBuffer = new ConcurrentQueue<byte[]>();
         }
         #endregion
         #region Public Methods
@@ -170,13 +166,20 @@ namespace Sockets {
         /// </summary>
         /// <param name="reason">The given reason for the disconnection</param>
         public void Disconnect(string reason) {
-            if (!IsConnected || _closing)
+            if (!IsConnected || _closing) {
                 return;
+            }
 
             _closing = true;
-
-            // -- Wait for everything in send buffer to clear??
+            var counter = 2000;
+            //// -- Wait for everything in send buffer to clear??
             while (_sending) {
+                //Console.WriteLin("[RAW SOCKET] - WAITING FOR SEND");
+                counter -= 1;
+
+                if (counter <= 0)
+                    break;
+
                 Thread.Sleep(1);
             }
             
@@ -189,8 +192,7 @@ namespace Sockets {
             IsConnected = false; // -- Flag any users that we are no longer connected.
 
             // -- Call the disconnected event.
-            if (Disconnected != null)
-                Disconnected.SafeRaise(new SocketDisconnectedArgs(this, reason));
+            Disconnected?.SafeRaise(new SocketDisconnectedArgs(this, reason));
 
             _closing = false; // -- Done closing our connection
         }
@@ -209,7 +211,7 @@ namespace Sockets {
             await Task.Run(() => SendLoop());
         }
 
-        public byte[] Get() {
+/*        public byte[] Get() {
             lock (_receiveBuffer) {
                 byte[] value;
                 bool result = _receiveBuffer.TryDequeue(out value);
@@ -219,9 +221,11 @@ namespace Sockets {
 
                 return value;
             }
-        }
+        }*/
         #endregion
         #region Async Callbacks
+
+
         private void SendLoop() { // -- Potential Bug: Data that needs to be in order, sending in an incorrect order due to async stuff.
             while (_sendBuffer.Count > 0) {
                 byte[] data;
@@ -232,14 +236,24 @@ namespace Sockets {
                 }
 
                 try {
-                    if (_baseStream.CanWrite)
-                        _baseStream.BeginWrite(data, 0, data.Length, DataSent, null);
-                    else
+                    if (_baseStream.CanWrite) {
+                        try {
+                            _baseStream.Write(data, 0, data.Length);
+                        }
+                        catch {
+                            Disconnect("Could not send");
+                        }
+                        //_baseStream.BeginWrite(data, 0, data.Length, DataSent, null);
+                    }
+                    else {
                         Disconnect("Socket closing");
+                    }
                 }
                 catch {
                     Disconnect("Socket closing");
                 }
+
+                Thread.Sleep(1);
             }
 
             _sending = false;
@@ -259,10 +273,8 @@ namespace Sockets {
             IsConnected = true; // -- Flag the system as connected
             _baseStream = _baseSocket.GetStream();
             _baseStream.BeginRead(_readBuffer, 0, ReadSize, ReadComplete, null); // -- Begin reading data
-            
-            if (Connected != null)
-                Connected.SafeRaise(new SocketConnectedArgs(this));
-               // Task.Run(() => Connected(new SocketConnectedArgs(this))); // -- Trigger the socket connected event.
+
+            Connected?.SafeRaise(new SocketConnectedArgs(this)); // -- Trigger the socket connected event.
         }
 
         private void ReadComplete(IAsyncResult ar) {
@@ -275,7 +287,11 @@ namespace Sockets {
                 return;
             }
             catch (IOException e) {
-                Disconnect("Socket exception occured: " + e.InnerException.HResult);
+                if (e.InnerException != null)
+                    Disconnect("Socket exception occured: " + e.InnerException.HResult);
+                else
+                    Disconnect("Socket Exception occured.");
+
                 return;
             }
 
@@ -287,8 +303,7 @@ namespace Sockets {
 
             var newMem = new byte[received];
             Buffer.BlockCopy(_readBuffer, 0, newMem, 0, received); // -- Copy the received data so the end user can use it however they wish
-            if (DataReceived != null)
-                DataReceived.SafeRaise(new DataReceivedArgs(this, newMem)); // -- Call the data received event. (Unblocks immediately, async).
+            DataReceived?.SafeRaise(new DataReceivedArgs(this, newMem)); // -- Call the data received event. (Unblocks immediately, async).
 
             try {
 				if (!_closing) 
@@ -298,7 +313,7 @@ namespace Sockets {
                 Disconnect("Socket closing");
             }
         }
-#endregion
+        #endregion
         #region Events
 
         public event SocketConnectedEventArgs Connected;

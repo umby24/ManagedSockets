@@ -39,6 +39,8 @@
     <Compile Include="EventArgs\ClientEvent.cs" />
     <Compile Include="EventArgs\DataReceivedArgs.cs" />
     <Compile Include="EventArgs\Extensions.cs" />
+    <Compile Include="EventArgs\IncomingEventArgs.cs" />
+    <Compile Include="EventArgs\NoArgs.cs" />
     <Compile Include="EventArgs\SocketConnectedArgs.cs" />
     <Compile Include="EventArgs\SocketDisconnectedArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
