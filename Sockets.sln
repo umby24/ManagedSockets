@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2047
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sockets", "Sockets\Sockets.csproj", "{7C87410C-0FD3-4A6A-AB20-E2CE2B5B606C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Viewer", "Viewer\Viewer.csproj", "{8D45F702-2E0A-42BE-BC08-CBE905909286}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sockets.Tests", "Sockets.Tests\Sockets.Tests.csproj", "{944C4DE3-4827-409F-BA9E-01A71A94E171}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,8 +23,15 @@ Global
 		{8D45F702-2E0A-42BE-BC08-CBE905909286}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D45F702-2E0A-42BE-BC08-CBE905909286}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8D45F702-2E0A-42BE-BC08-CBE905909286}.Release|Any CPU.Build.0 = Release|Any CPU
+		{944C4DE3-4827-409F-BA9E-01A71A94E171}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{944C4DE3-4827-409F-BA9E-01A71A94E171}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{944C4DE3-4827-409F-BA9E-01A71A94E171}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{944C4DE3-4827-409F-BA9E-01A71A94E171}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1B3E7C78-6211-4122-9B21-F4943A482B6D}
 	EndGlobalSection
 EndGlobal
