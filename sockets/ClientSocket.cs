@@ -210,18 +210,6 @@ namespace Sockets {
             _sending = true;
             await Task.Run(() => SendLoop());
         }
-
-/*        public byte[] Get() {
-            lock (_receiveBuffer) {
-                byte[] value;
-                bool result = _receiveBuffer.TryDequeue(out value);
-
-                if (!result)
-                    throw new Exception("Too early there cowboy!");
-
-                return value;
-            }
-        }*/
         #endregion
         #region Async Callbacks
 
@@ -269,12 +257,18 @@ namespace Sockets {
         }
 
         private void ConnectComplete(IAsyncResult ar) {
-            _baseSocket.EndConnect(ar); // -- End the connection event..
-            IsConnected = true; // -- Flag the system as connected
-            _baseStream = _baseSocket.GetStream();
-            _baseStream.BeginRead(_readBuffer, 0, ReadSize, ReadComplete, null); // -- Begin reading data
+            try {
+                _baseSocket.EndConnect(ar); // -- End the connection event..
+                IsConnected = true; // -- Flag the system as connected
+                _baseStream = _baseSocket.GetStream();
+                _baseStream.BeginRead(_readBuffer, 0, ReadSize, ReadComplete, null); // -- Begin reading data
 
-            Connected?.SafeRaise(new SocketConnectedArgs(this)); // -- Trigger the socket connected event.
+                Connected?.SafeRaise(new SocketConnectedArgs(this)); // -- Trigger the socket connected event.
+            }
+            catch (Exception ex) {
+                IsConnected = false;
+                ErrorReceived?.SafeRaise(new SocketErrorArgs(this, "Error during connect: " + ex.Message));
+            }
         }
 
         private void ReadComplete(IAsyncResult ar) {
@@ -319,6 +313,8 @@ namespace Sockets {
         public event SocketConnectedEventArgs Connected;
         public event DataReceivedEventArgs DataReceived;
         public event SocketDisconnectedEventArgs Disconnected;
+        public event SocketErrorEventArgs ErrorReceived;
+
         #endregion
     }
 }

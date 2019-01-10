@@ -71,6 +71,28 @@ namespace Sockets.Tests {
             Assert.IsFalse(mySocket.IsConnected, "Managed to connect to invalid address.");
             Assert.IsFalse(connectEventFired, "The connection event fired.");
         }
+
+        //[TestMethod]
+        //public void Connect_InvalidIp_Caught() {
+        //    var mySocket = new ClientSocket("127.0.0.1", 802);
+        //    bool connectEventFired = false, errorFired = false, disconnectFired = false;
+
+        //    mySocket.Connected += args => { connectEventFired = true; };
+        //    mySocket.ErrorReceived += args => { errorFired = true; };
+        //    mySocket.Disconnected += args => { disconnectFired = true; };
+
+        //    try {
+        //        mySocket.Connect();
+        //    }
+        //    catch (Exception ex) {
+        //        Console.WriteLine("Error " + ex.Message);
+        //    }
+
+        //    Assert.IsFalse(mySocket.IsConnected, "Managed to connect to invalid address.");
+        //    Assert.IsFalse(connectEventFired, "The connection event fired.");
+        //    Assert.IsFalse(disconnectFired, "Disconnect fired.");
+        //    Assert.IsTrue(errorFired, "Error failed to fire.");
+        //}
     }
 
 }

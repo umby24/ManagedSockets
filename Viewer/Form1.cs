@@ -23,7 +23,17 @@ namespace Viewer {
             _mySock.Connected += MySockOnConnected;
             _mySock.Disconnected += MySockOnDisconnected;
             _mySock.DataReceived += MySockOnDataReceived;
-            _mySock.Connect();
+            _mySock.ErrorReceived += MySockOnErrorReceived;
+            try {
+                _mySock.Connect();
+            }
+            catch (Exception ex) {
+                MessageBox.Show("Error connecting: " + ex.Message);
+            }
+        }
+
+        private void MySockOnErrorReceived(SocketErrorArgs args) {
+            MessageBox.Show("Socket error occured: " + args.Error);
         }
 
         private void MySockOnDataReceived(DataReceivedArgs args) {
