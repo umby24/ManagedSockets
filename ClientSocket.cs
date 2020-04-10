@@ -1,21 +1,14 @@
-﻿/*
-    Managed Sockets
-    by Umby24
-    Purpose: Provide easy to use event-based sockets for server and client applications, by wrapping asyncronous functions and abstracting them away from the user level.
-    Project Start: Wednesday March 16, 2016, 4 am.
-*/
-
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
+using ManagedSockets.EventArgs;
 using Sockets.EventArgs;
 
-namespace Sockets {
+namespace ManagedSockets {
     /// <summary>
     /// Client socket
     /// </summary>
@@ -137,7 +130,7 @@ namespace Sockets {
             try {
                 _baseStream.BeginRead(_readBuffer, 0, ReadSize, ReadComplete, null); // -- Begin reading data
             }
-            catch (Exception e) {
+            catch {
                 Disconnect("Socket Disconnected");
             }
         }

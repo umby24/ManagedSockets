@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using Sockets.EventArgs;
 
-namespace Sockets {
+namespace ManagedSockets {
     public class ServerSocket {
         private readonly TcpListener _listener;
         public bool Listening { get; set; }
@@ -64,7 +64,7 @@ namespace Sockets {
             try {
                 _listener.BeginAcceptTcpClient(AcceptCallback, null);
             }
-            catch (Exception e) {
+            catch {
                 Stop();
             }
         }

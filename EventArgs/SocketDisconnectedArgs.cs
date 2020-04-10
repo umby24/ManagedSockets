@@ -1,4 +1,4 @@
-﻿namespace Sockets.EventArgs {
+﻿namespace ManagedSockets.EventArgs {
     public class SocketDisconnectedArgs : ClientEvent {
         public string Reason { get; set; }
 

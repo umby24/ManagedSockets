@@ -1,4 +1,4 @@
-﻿namespace Sockets.EventArgs {
+﻿namespace ManagedSockets.EventArgs {
     public class SocketErrorArgs : ClientEvent {
         public string Error { get; set; }
 

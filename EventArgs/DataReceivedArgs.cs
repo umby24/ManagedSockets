@@ -1,4 +1,4 @@
-﻿namespace Sockets.EventArgs {
+﻿namespace ManagedSockets.EventArgs {
     public class DataReceivedArgs : ClientEvent {
         public byte[] Data { get; set; }
 

@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <AssemblyName>ManagedSockets</AssemblyName>
+        <RootNamespace>ManagedSockets</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Folder Include="EventArgs" />
+    </ItemGroup>
+
+</Project>
